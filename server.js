@@ -9,6 +9,7 @@ const passport = require("passport")
 const LocalStrategy = require("passport-local")
 const db = require("mongodb")
 const ObjectID = require("mongodb").ObjectID
+const bcrypt = require("bcrypt")
 
 // const ensureAuthenticated = require("./middleware/isAuthenticated")
 function ensureAuthenticated(req, res, next) {
@@ -71,7 +72,7 @@ myDB(async (client) => {
         if (!user) {
           return done(null, false)
         }
-        if (password !== user.password) {
+        if (!bcrypt.compareSync(password, user.password)) {
           return done(null, false)
         }
         return done(null, user)
@@ -92,10 +93,12 @@ app.route("/register").post(
       } else if (user) {
         res.redirect("/")
       } else {
+        const hash = bcrypt.hashSync(req.body.password, 12)
+
         myDataBase.insertOne(
           {
             username: req.body.username,
-            password: req.body.password,
+            password: hash,
           },
           (err, doc) => {
             if (err) {
