@@ -5,4 +5,4 @@ function ensureAuthenticated(req, res, next) {
   res.redirect("/")
 }
 
-// export { ensureAuthenticated }
+export { ensureAuthenticated }
