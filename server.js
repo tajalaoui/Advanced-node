@@ -10,6 +10,14 @@ const LocalStrategy = require("passport-local")
 const db = require("mongodb")
 const ObjectID = require("mongodb").ObjectID
 
+// const ensureAuthenticated = require("./middleware/isAuthenticated")
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next()
+  }
+  res.redirect("/")
+}
+
 app.set("view engine", "pug")
 
 fccTesting(app) //For FCC testing purposes
@@ -79,15 +87,8 @@ myDB(async (client) => {
   })
 })
 
-function ensureAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next()
-  }
-  res.redirect("/")
-}
-
 app.route("/profile").get(ensureAuthenticated, (req, res) => {
-  res.render(process.cwd() + "/views/pug/profile")
+  res.render(process.cwd() + "/views/pug/profile", { username: req.user.username })
 })
 
 app.post("/login", passport.authenticate("local", { failureRedirect: "/" }), async (req, res) => {
