@@ -59,6 +59,13 @@ module.exports = function (app, myDataBase) {
     res.redirect("/")
   })
 
+  app.route("/auth/github").get(passport.authenticate("github"))
+  app
+    .route("/auth/github/callback")
+    .get(passport.authenticate("github", { failureRedirect: "/" }), (req, res) => {
+      res.redirect("/profile")
+    })
+
   function ensureAuthenticated(req, res, next) {
     if (req.isAuthenticated()) {
       return next()
