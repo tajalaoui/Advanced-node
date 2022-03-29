@@ -50,6 +50,10 @@ module.exports = function (app, myDataBase) {
     res.render(process.cwd() + "/views/pug/profile", { username: req.user.username })
   })
 
+  app.route("/chat").get(ensureAuthenticated, (req, res) => {
+    res.render(process.cwd() + "/views/pug/chat", { user: req.user })
+  })
+
   app.post("/login", passport.authenticate("local", { failureRedirect: "/" }), async (req, res) => {
     res.redirect("/profile").render("pug")
   })
@@ -63,7 +67,8 @@ module.exports = function (app, myDataBase) {
   app
     .route("/auth/github/callback")
     .get(passport.authenticate("github", { failureRedirect: "/" }), (req, res) => {
-      res.redirect("/profile")
+      req.session.user_id = req.user.id
+      res.redirect("/chat")
     })
 
   function ensureAuthenticated(req, res, next) {

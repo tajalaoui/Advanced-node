@@ -8,6 +8,8 @@ const session = require("express-session")
 const passport = require("passport")
 const routes = require("./routes")
 const auth = require("./auth")
+const http = require("http").createServer(app)
+const io = require("socket.io")(http)
 
 app.set("view engine", "pug")
 
@@ -33,12 +35,16 @@ myDB(async (client) => {
 
   routes(app, myDataBase)
   auth(app, myDataBase)
+
+  io.on("connection", (socket) => {
+    console.log("A user has connected")
+  })
 }).catch((e) => {
   app.route("/").get((req, res) => {
     res.render("pug", { title: e, message: "Unable to login" })
   })
 })
 
-app.listen(process.env.PORT || 3000, () => {
+http.listen(process.env.PORT || 3000, () => {
   console.log("Listening on port " + process.env.PORT)
 })
